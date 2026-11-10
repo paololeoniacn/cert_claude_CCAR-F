@@ -1,0 +1,7 @@
+.DS_Store
+__pycache__/
+# banca domande di terze parti: solo locale, mai nel repository
+fonti/ccafpreparation-bank-*.json
+# risultati personali del trainer
+trainer/state/*
+!trainer/state/.gitkeep

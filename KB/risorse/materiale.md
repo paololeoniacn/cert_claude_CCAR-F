@@ -17,4 +17,7 @@ Aggiornato: 2026-11-10
 
 ## Affidabilità
 - Le risposte dei siti terzi vanno verificate contro la guida ufficiale e la documentazione Anthropic.
-- Il corpus dei siti terzi è protetto da copyright: non va copiato nel repository. Si usa sul sito o come riferimento.
+- Il corpus dei siti terzi è protetto da copyright.
+- Banca ccafpreparation (408 domande): scaricata il 2026-11-10 in `fonti/ccafpreparation-bank-2026-11-10.json`. L'utente dichiara un permesso da accordo diretto. La banca resta solo in locale: niente remote e niente push. (fonte: richiesta utente in sessione 2026-11-10)
+- Composizione della banca: 240 `enrichment`, 156 `lesson`, 12 `official-sample`. 28 domande sono a risposta multipla («Select two»). Le spiegazioni sono in inglese. (fonte: fonti/ccafpreparation-bank-2026-11-10.json)
+- termidy: non scaricato. Il `robots.txt` vieta `/question_banks/` e non c'è accesso guest a CCAR-F.

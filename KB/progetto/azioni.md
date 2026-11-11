@@ -14,10 +14,20 @@ Aggiornato: 2026-11-11
 - Corretto: le 12 domande ufficiali (`os-*`) hanno solo un campo `explanation`, e prima la UI mostrava spiegazioni vuote.
 - Aggiunti `trainer/translate.py` (ripartibile: rilancialo per completare) e le spiegazioni in italiano nella UI. 12 test unitari OK.
 
-## Da fare (riprendi da qui)
+## Checkpoint 2026-11-11 14:54 — PUNTO DI RIPRESA
+Quando l'utente scrive «riprendiamo», parti da qui:
+1. Completa la traduzione: 375/408 fatte, ne mancano 33. Rilancia `trainer/translate.py` (comando in `CLAUDE.md`): salta le domande già tradotte.
+2. Avvia il server su una porta libera (la 8765 è occupata da `chief web` di pl_chief_to_staff: non toccarlo). Ultima porta usata: 8766. Dai il link all'utente.
+3. L'utente fa il mock baseline da 60 domande (Giorno 1). Con il punteggio, imposta i giorni 2–5 sui domini più deboli.
+
+Stato al momento della pausa:
+- Server e traduzione fermati su richiesta dell'utente.
+- Il primo mock baseline (`20261111-145117-e4d03d`) era stato consegnato per errore (3/60 risposte, 43 s). È annullato su richiesta dell'utente: mock e 60 tentativi sono in `trainer/state/annullati/`. Lo stato del trainer è vuoto.
+
+## Da fare
 | # | Azione | Stato |
 |---|---|---|
-| 1 | Tradurre in italiano le spiegazioni (1.612 per opzione + 12 spiegazioni ufficiali) con Qwen3.5-9B MLX locale in `trainer/data/rationale_it.jsonl`. La UI mostra l'italiano e l'originale EN richiudibile. Traduzione automatica: in caso di dubbio vale l'originale | in corso (2026-11-11) |
+| 1 | Tradurre in italiano le spiegazioni (1.612 per opzione + 12 spiegazioni ufficiali) con Qwen3.5-9B MLX locale in `trainer/data/rationale_it.jsonl`. La UI mostra l'italiano e l'originale EN richiudibile. Traduzione automatica: in caso di dubbio vale l'originale | in pausa: 375/408 |
 | 2 | Giorno 1: mock baseline da 60 domande senza studiare (`uv run trainer/ccar.py serve` → «Mock baseline») | aperta |
 | 3 | Giorni 2–5: pratica per dominio secondo `target.md` | aperta |
 | 4 | Giorno 6: 2 mock «final» (usano le domande riservate) | aperta |

@@ -25,6 +25,7 @@ PROJECT = ROOT.parent
 BANK_FILE = PROJECT / "fonti" / "ccafpreparation-bank-2026-11-10.json"
 BLUEPRINT_FILE = PROJECT / "KB" / "esame" / "blueprint.md"
 SCENARIOS_FILE = ROOT / "scenarios.json"
+TRANSLATION_FILE = ROOT / "data" / "rationale_it.jsonl"  # built by translate.py, optional
 STATE_DIR = ROOT / "state"
 WEB_DIR = ROOT / "web"
 
@@ -61,6 +62,17 @@ def load_rules() -> dict[str, dict]:
         if m:
             rules[m.group(1)] = {"title": m.group(2).strip(), "rule": m.group(3).strip()}
     return rules
+
+
+def load_translations() -> dict[str, dict]:
+    if not TRANSLATION_FILE.exists():
+        return {}
+    out = {}
+    for line in TRANSLATION_FILE.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            row = json.loads(line)
+            out[row["id"]] = row["rationale_it"]
+    return out
 
 
 def load_scenarios() -> dict[str, str]:
@@ -100,12 +112,14 @@ class Trainer:
     attempts: list[dict] = field(default_factory=list)
     qstate: dict[str, QState] = field(default_factory=dict)
     reserved: set[str] = field(default_factory=set)
+    translations: dict[str, dict] = field(default_factory=dict)
 
     @classmethod
     def open(cls, state_dir: Path = STATE_DIR) -> "Trainer":
         bank = load_bank()
         t = cls(bank, load_rules(), load_scenarios(), state_dir)
         t.reserved = reserved_ids(bank)
+        t.translations = load_translations()
         t.state_dir.mkdir(parents=True, exist_ok=True)
         if t.attempts_file.exists():
             for line in t.attempts_file.read_text(encoding="utf-8").splitlines():
@@ -270,6 +284,16 @@ class Trainer:
         r = self.rules.get(q["taskRef"], {})
         return {"task": q["taskRef"], "title": r.get("title", ""), "rule_it": r.get("rule", "")}
 
+    def explain(self, qid: str) -> dict:
+        """Per-option rationale (official samples only have one explanation), with Italian when translated."""
+        q, it = self.bank[qid], self.translations.get(qid, {})
+        return {
+            "rationale": q["rationale"],
+            "rationale_it": {k: v for k, v in it.items() if k in q["rationale"]} or None,
+            "explanation": q.get("explanation"),
+            "explanation_it": it.get("explanation"),
+        }
+
     def feedback(self, qid: str, attempt: dict, before: dict[int, dict]) -> dict:
         q = self.bank[qid]
         after = self.mastery()
@@ -278,7 +302,7 @@ class Trainer:
             "correct": attempt["correct"],
             "your_answer": attempt["answer"],
             "correct_answer": q["correct"],
-            "rationale": q["rationale"],
+            **self.explain(qid),
             "citation": q.get("citation"),
             "lesson": self.lesson(qid),
             "domain": d,
@@ -390,7 +414,7 @@ class Trainer:
                 b[1] += 1
             items.append(self.public_question(qid) | {
                 "your_answer": ans, "correct_answer": q["correct"], "ok": ok,
-                "rationale": q["rationale"], "citation": q.get("citation"), "lesson": self.lesson(qid),
+                **self.explain(qid), "citation": q.get("citation"), "lesson": self.lesson(qid),
                 "flagged": qid in mock["flags"],
             })
         return {

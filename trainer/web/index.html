@@ -58,6 +58,8 @@
   .why.c { border-left-color: var(--ok); }
   .why b { margin-right: 6px; }
   .mastery-delta { font-size: 14px; color: var(--muted); }
+  details.orig { margin-top: 4px; font-size: 12px; color: var(--muted); }
+  details.orig > summary { cursor: pointer; }
   .cite a { color: var(--focus); font-size: 13px; }
   .lesson-card { border: 2px solid var(--warn); background: var(--warn-bg); padding: 16px 18px; border-radius: 4px; margin-bottom: 18px; }
   .lesson-card h3 { margin: 0 0 6px; color: var(--warn); }
@@ -279,12 +281,23 @@ function feedback(fb, q) {
   return el("div", {class: "fb"},
     el("div", {class: "verdict " + (fb.correct ? "ok" : "ko"), text: fb.correct ? "✅ Corretta" : `❌ Sbagliata — corretta: ${fb.correct_answer.join(", ")}`}),
     el("div", {class: "rule"}, el("h4", {text: `Regola da ricordare · ${fb.lesson.task} ${fb.lesson.title}`}), el("div", {text: fb.lesson.rule_it})),
-    el("div", {}, el("b", {text: "Perché (spiegazione per ogni opzione):"})),
-    ...q.options.map(o => el("div", {class: "why" + (fb.correct_answer.includes(o.key) ? " c" : "")},
-      el("b", {text: o.key + (fb.correct_answer.includes(o.key) ? " ✓" : " ✗")}), fb.rationale[o.key] || "")),
+    ...explanation(fb, q),
     el("p", {class: "mastery-delta", text: `${DOM_SHORT[fb.domain]} mastery: ${pct(before)} → ${pct(after)} ${arrow}` +
       (fb.next_review_in !== null ? ` · questa domanda torna tra ${fb.next_review_in} risposte` : "")}),
     fb.citation ? el("p", {class: "cite"}, "Fonte: ", el("a", {href: fb.citation, target: "_blank", rel: "noopener noreferrer", text: fb.citation})) : null);
+}
+
+function bilingual(it, en) {
+  if (!it) return [el("span", {text: en || ""})];
+  return [el("span", {text: it}), el("details", {class: "orig"}, el("summary", {text: "Originale (EN)"}), el("span", {text: en}))];
+}
+function explanation(fb, q) {
+  if (!Object.keys(fb.rationale || {}).length)
+    return [el("div", {}, el("b", {text: "Perché:"})), el("div", {class: "why c"}, ...bilingual(fb.explanation_it, fb.explanation))];
+  const it = fb.rationale_it || {};
+  return [el("div", {}, el("b", {text: "Perché (spiegazione per ogni opzione):"})),
+    ...q.options.map(o => el("div", {class: "why" + (fb.correct_answer.includes(o.key) ? " c" : "")},
+      el("b", {text: o.key + (fb.correct_answer.includes(o.key) ? " ✓" : " ✗")}), ...bilingual(it[o.key], fb.rationale[o.key])))];
 }
 
 /* ---------- mock exam ---------- */

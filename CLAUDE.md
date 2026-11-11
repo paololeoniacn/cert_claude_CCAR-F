@@ -10,6 +10,7 @@ Obiettivo: superare l'esame Claude Certified Architect – Foundations (CCAR-F) 
 - Web (simula l'esame): `uv run trainer/ccar.py serve` → http://127.0.0.1:8765
 - Chat: `uv run trainer/ccar.py next [--domain N]`, poi `answer <QID> <LETTERE>`; `stats`, `missed`. Output JSON. In chat mostra la domanda in inglese senza la soluzione e spiega in italiano dopo la risposta.
 - Test: `cd trainer && uv run --quiet python -m unittest -v test_ccar`
+- Traduzione IT delle spiegazioni: `uv run --with mlx-lm trainer/translate.py --model <percorso snapshot Qwen3.5-9B>` (ripartibile). Uscita in `trainer/data/` (solo locale).
 - Stato utente: `trainer/state/` (`attempts.jsonl` append-only). Le regole italiane vengono da `KB/esame/blueprint.md`: non cambiarne il formato delle righe `- **N.N Titolo**: regola`.
 - La banca in `fonti/` è solo locale: non fare push.
 

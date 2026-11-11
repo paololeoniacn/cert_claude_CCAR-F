@@ -107,6 +107,18 @@ class TrainerTest(unittest.TestCase):
         t2 = ccar.Trainer.open(Path(self.tmp.name))
         self.assertEqual(t2.qstate["1-1-q01"].wrong, 1)
 
+    def test_explain_uses_italian_and_official_explanation(self):
+        self.t.translations = {"1-1-q01": {"A": "spiegazione A", "Z": "chiave estranea"},
+                               "os-01": {"explanation": "spiegazione ufficiale"}}
+        e = self.t.explain("1-1-q01")
+        self.assertEqual(e["rationale_it"], {"A": "spiegazione A"})
+        self.assertIsNone(e["explanation_it"])
+        e = self.t.explain("os-01")
+        self.assertEqual(e["rationale"], {})
+        self.assertTrue(e["explanation"])
+        self.assertEqual(e["explanation_it"], "spiegazione ufficiale")
+        self.assertIsNone(self.t.explain("1-1-e03")["rationale_it"])
+
     def test_mock_id_rejects_path_traversal(self):
         with self.assertRaises(ValueError):
             self.t.load_mock("../../etc/passwd")

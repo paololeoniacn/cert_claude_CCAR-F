@@ -5,3 +5,5 @@ fonti/ccafpreparation-bank-*.json
 # risultati personali del trainer
 trainer/state/*
 !trainer/state/.gitkeep
+# traduzioni derivate dalla banca: solo locale
+trainer/data/
